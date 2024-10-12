@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[10]:
 
 
 import os
@@ -10,7 +10,17 @@ import torch
 import detectron2
 from detectron2.data import detection_utils as utils
 from detectron2.utils.logger import setup_logger
-setup_logger()
+import logging
+
+# 로그 설정 ( output_log 폴더 안에서 output.log 라는 파일이 생성되고 거기서 실시간으로 진행상황이 보이게 된다.)
+log_output_dir = './output_logs'
+os.makedirs(log_output_dir, exist_ok=True)
+log_file = os.path.join(log_output_dir, 'output.log')
+logger = setup_logger(output=log_file)
+logger.setLevel(logging.INFO)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+logger.addHandler(console_handler)
 
 from detectron2 import model_zoo
 from detectron2.config import get_cfg
@@ -19,55 +29,111 @@ from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.data.datasets import register_coco_instances
 from detectron2.evaluation import COCOEvaluator
 from detectron2.data import build_detection_test_loader, build_detection_train_loader
+import detectron2.data.transforms as T
+from detectron2.utils.events import EventWriter, get_event_storage
 
 
-# In[2]:
+# ## StratifiedKFold를 통해서 train/val을 8 : 2 비율로 나누는 코드입니다.
+
+# In[11]:
 
 
-# Register Dataset
-try: # register_coco_instances 함수를 사용해 COCO 형식의 데이터셋을 등록
-    register_coco_instances('coco_trash_train', {}, '../../dataset/train.json', '../../dataset/')
-except AssertionError:
-    pass
+import os
+import json
+import random
+import numpy as np
+from sklearn.model_selection import StratifiedKFold
+from detectron2.data.datasets import register_coco_instances
 
-try: # 
-    register_coco_instances('coco_trash_test', {}, '../../dataset/test.json', '../../dataset/')
-except AssertionError:
-    pass
+# 절대 경로를 사용하여 데이터셋 경로 설정
+dataset_dir = '/data/ephemeral/home/Lv2.Object_Detection/dataset'
+train_json_path = os.path.join(dataset_dir, 'train.json')
+image_dir = os.path.join(dataset_dir,)  # 실제 이미지 경로로 수정
 
-# MetadataCatalog.get()를 통해 coco_trash_train 데이터셋의 클래스 이름을 지정
-MetadataCatalog.get('coco_trash_train').thing_classes = ["General trash", "Paper", "Paper pack", "Metal", 
-                                                         "Glass", "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing"]
+# COCO 형식의 train.json 로드
+with open(train_json_path, 'r') as f:
+    coco_data = json.load(f)
+
+# image_id 별로 annotations를 묶기
+image_to_annotations = {}
+image_to_category = {}  # StratifiedKFold를 사용하기 위해 클래스 레이블 필요
+for anno in coco_data['annotations']:
+    image_id = anno['image_id']
+    if image_id not in image_to_annotations:
+        image_to_annotations[image_id] = []
+    image_to_annotations[image_id].append(anno)
+    # 이미지에 속한 클래스 레이블 추가 (첫 번째 어노테이션 기준으로 레이블 설정)
+    if image_id not in image_to_category:
+        image_to_category[image_id] = anno['category_id']
+
+# 이미지 리스트 및 해당하는 클래스 라벨 추출
+image_ids = list(image_to_annotations.keys())
+image_labels = [image_to_category[image_id] for image_id in image_ids]
+
+# StratifiedKFold 설정
+n_splits = 5  # 원하는 K 값을 설정
+skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+
+# 원하는 fold 선택 (예: fold_idx = 0일 경우 첫 번째 fold를 validation으로 사용)
+fold_idx = 0
+
+# K-fold split 진행
+for idx, (train_idx, val_idx) in enumerate(skf.split(image_ids, image_labels)):
+    if idx == fold_idx:
+        train_image_ids = [image_ids[i] for i in train_idx]
+        val_image_ids = [image_ids[i] for i in val_idx]
+        break
+
+# Train과 Val에 해당하는 annotations 필터링
+train_annotations = [anno for image_id in train_image_ids for anno in image_to_annotations[image_id]]
+val_annotations = [anno for image_id in val_image_ids for anno in image_to_annotations[image_id]]
+
+# Train과 Val에 해당하는 이미지 필터링
+train_images = [img for img in coco_data['images'] if img['id'] in train_image_ids]
+val_images = [img for img in coco_data['images'] if img['id'] in val_image_ids]
+
+# train.json과 val.json 생성
+train_split_path = os.path.join(dataset_dir, f'train_fold_{fold_idx}.json')
+val_split_path = os.path.join(dataset_dir, f'val_fold_{fold_idx}.json')
+
+train_data = coco_data.copy()
+train_data['annotations'] = train_annotations
+train_data['images'] = train_images
+with open(train_split_path, 'w') as f:
+    json.dump(train_data, f)
+
+val_data = coco_data.copy()
+val_data['annotations'] = val_annotations
+val_data['images'] = val_images
+with open(val_split_path, 'w') as f:
+    json.dump(val_data, f)
+
+# 데이터셋 등록 ( 원하는 폴드를 사용하면 된다 )
+register_coco_instances(f"coco_trash_train_fold_{fold_idx}", {}, train_split_path, image_dir)
+register_coco_instances(f"coco_trash_val_fold_{fold_idx}", {}, val_split_path, image_dir)
 
 
-# In[3]:
-
-
-# config 불러오기
-'''
-1. get_cfg()를 호출해 기본 설정을 가져오기
-
-2. model_zoo.get_config_file()을 사용해 미리 정의된 Faster R-CNN의 R101 FPN 3x 구성 파일을 로드(이 부분은 변경 가능)
-
-'''
-
+# In[12]:
 
 
 cfg = get_cfg() # detectron2에서 기본 설정을 가지고 오는 함수입니다.
 cfg.merge_from_file(model_zoo.get_config_file('COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml'))
 
 
-# In[4]:
+# ## 하이퍼파라미터와 관련된 setting을 진행하는 코드입니다.
+
+# In[13]:
 
 
-# 학습 데이터셋을 coco_trash_train으로 설정
-cfg.DATASETS.TRAIN = ('coco_trash_train',)
+# 0부터 4까지 가능, 사용하고자 하는 폴드를 설정
+fold_idx = 0  
 
-# 테스트 데이터셋을 coco_trash_test로 설정
-cfg.DATASETS.TEST = ('coco_trash_test',)
+# K-fold로 나눈 데이터를 기반으로, 학습 및 검증 데이터셋 설정
+cfg.DATASETS.TRAIN = (f'coco_trash_train_fold_{fold_idx}',)
+cfg.DATASETS.TEST = (f'coco_trash_val_fold_{fold_idx}',)
 
 # DataLoader에서 사용할 worker 수를 2로 설정 (병렬 데이터 로딩)
-cfg.DATALOADER.NUM_WORKERS = 2  # (오타 수정: NUM_WOREKRS → NUM_WORKERS)
+cfg.DATALOADER.NUM_WORKERS = 2 
 
 # # Faster R-CNN R101 FPN 3x 모델의 사전 학습된 가중치 사용
 cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url('COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml')
@@ -78,20 +144,20 @@ cfg.SOLVER.IMS_PER_BATCH = 4
 # 학습률(Learning Rate)을 0.001로 설정
 cfg.SOLVER.BASE_LR = 0.001
 
-# 학습 반복(iteration)을 최대 15,000번으로 설정
-cfg.SOLVER.MAX_ITER = 15000
+# 학습 반복(iteration)을 최대 15,000으로 줄여서 대충 15에폭 정도의 학습을 갖게 합니다.
+cfg.SOLVER.MAX_ITER = 5000
 
 # 8000번째와 12000번째 반복(iteration)에서 학습률을 감소시키도록 설정
-cfg.SOLVER.STEPS = (8000, 12000)
+cfg.SOLVER.STEPS = (2500, 4000)
 
 # 학습률 감소 비율을 0.005로 설정
 cfg.SOLVER.GAMMA = 0.005
 
 # 체크포인트 저장 주기를 3000번 반복마다 저장하도록 설정
-cfg.SOLVER.CHECKPOINT_PERIOD = 3000
+cfg.SOLVER.CHECKPOINT_PERIOD = 500
 
 # 모델의 출력(결과) 파일을 저장할 디렉토리를 './output'으로 설정
-cfg.OUTPUT_DIR = './output'
+cfg.OUTPUT_DIR = './output/test'
 
 # 이미지당 ROI(Region of Interest) 샘플 수를 128로 설정 (RoI Head의 배치 크기)
 cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128
@@ -100,10 +166,17 @@ cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 10
 
 # 평가 주기를 3000번 반복마다 평가하도록 설정 (TEST 단계)
-cfg.TEST.EVAL_PERIOD = 3000
+cfg.TEST.EVAL_PERIOD = 500
+cfg.TEST.SCORE_THRESH_TEST = 0.5  # AP@50 기준 설정
 
 
-# In[5]:
+# In[6]:
+
+
+
+
+
+# In[14]:
 
 
 # mapper - input data를 어떤 형식으로 return할지 (따라서 augmnentation 등 데이터 전처리 포함 됨)
@@ -157,7 +230,7 @@ def MyMapper(dataset_dict):
     return dataset_dict
 
 
-# In[6]:
+# In[15]:
 
 
 # trainer - DefaultTrainer를 상속
@@ -178,12 +251,106 @@ class MyTrainer(DefaultTrainer):
         return COCOEvaluator(dataset_name, cfg, False, output_folder)
 
 
-# In[7]:
+# In[16]:
 
 
-# train
-os.makedirs(cfg.OUTPUT_DIR, exist_ok = True)
+import wandb
+from detectron2.utils.events import EventWriter, get_event_storage
 
+class WandbWriter(EventWriter):
+    def __init__(self, cfg, project=None, name=None):
+        self.cfg = cfg
+        self.run = wandb.init(project=project, name=name, config=cfg)
+    
+    def write(self):
+        storage = get_event_storage()
+        stats = {}
+        # storage.histories()를 사용하여 메트릭 가져오기
+        for k in storage.histories():
+            v = storage.histories()[k].latest()
+            if isinstance(v, (int, float)):
+                stats[k] = v
+        # 현재 학습 iteration 추가
+        stats['iteration'] = storage.iter
+        wandb.log(stats)
+    
+    def close(self):
+        self.run.finish()
+
+
+
+# In[17]:
+
+
+class MyTrainer(DefaultTrainer):
+    def __init__(self, cfg):
+        super().__init__(cfg)
+        self.best_AP = 0  # 최고 성능을 저장할 변수
+
+    @classmethod
+    def build_train_loader(cls, cfg, sampler=None):
+        return build_detection_train_loader(cfg, mapper=MyMapper, sampler=sampler)
+    
+    @classmethod
+    def build_evaluator(cls, cfg, dataset_name, output_folder=None):
+        if output_folder is None:
+            os.makedirs('./output_eval', exist_ok=True)
+            output_folder = './output_eval'
+        return COCOEvaluator(dataset_name, cfg, False, output_dir=output_folder)
+    
+    # build_writers 메서드 오버라이드
+    def build_writers(self):
+        # 기본 writers 가져오기
+        writers = super().build_writers()
+        # WandbWriter 추가
+        writers.append(WandbWriter(self.cfg, 
+            project="detectron2", 
+            name="wandb_test"))
+        return writers
+
+    def after_step(self):
+        super().after_step()
+        # 평가 주기에 도달하면 평가 수행
+        next_iter = self.iter + 1
+        if next_iter % self.cfg.TEST.EVAL_PERIOD == 0:
+            results = self.test(self.cfg, self.model)
+            # mAP 가져오기 (여기서는 bbox mAP를 사용)
+            bbox_AP = results['bbox']['AP']
+            # best_AP 갱신 및 모델 저장
+            if bbox_AP > self.best_AP:
+                self.best_AP = bbox_AP
+                self.checkpointer.save("model_best")
+                # wandb에 best mAP 기록
+                wandb.log({'best_bbox_AP': self.best_AP, 'iteration': next_iter})
+            
+            # 예측 결과 시각화하여 wandb에 업로드
+            self.visualize_predictions()
+
+    def visualize_predictions(self):
+        # 데이터셋에서 일부 이미지 선택
+        val_loader = build_detection_test_loader(self.cfg, self.cfg.DATASETS.TEST[0])
+        data = next(iter(val_loader))
+        with torch.no_grad():
+            # 모델을 평가 모드로 설정
+            self.model.eval()
+            predictions = self.model(data)
+            # 다시 학습 모드로 복귀
+            self.model.train()
+        # 이미지와 예측 결과 시각화
+        from detectron2.utils.visualizer import Visualizer
+        import cv2
+        v = Visualizer(data[0]['image'].cpu().numpy().transpose(1, 2, 0)[:, :, ::-1],
+                       MetadataCatalog.get(self.cfg.DATASETS.TEST[0]), scale=1.2)
+        v = v.draw_instance_predictions(predictions[0]['instances'].to('cpu'))
+        result_image = v.get_image()
+        # wandb에 이미지 업로드
+        wandb.log({"Prediction Examples": [wandb.Image(result_image, caption="Prediction")]})
+
+
+# In[18]:
+
+
+# 학습 시작
 trainer = MyTrainer(cfg)
 trainer.resume_or_load(resume=False)
 trainer.train()

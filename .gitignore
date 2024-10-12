@@ -51,4 +51,5 @@ _darcs
 /projects/*/datasets
 /models
 /snippet
-
+*.log
+*.wandb
