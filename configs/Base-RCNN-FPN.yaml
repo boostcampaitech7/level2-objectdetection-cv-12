@@ -7,7 +7,7 @@ MODEL:
   FPN:
     IN_FEATURES: ["res2", "res3", "res4", "res5"]
   ANCHOR_GENERATOR:
-    SIZES: [[32], [64], [128], [256], [512]]  # One size for each in feature map
+    SIZES: [[64], [128], [256]]  # One size for each in feature map
     ASPECT_RATIOS: [[0.5, 1.0, 2.0]]  # Three aspect ratios (same for all in feature maps)
   RPN:
     IN_FEATURES: ["p2", "p3", "p4", "p5", "p6"]
