@@ -121,14 +121,13 @@ param_scheduler = [
         gamma=0.5)
 ]
 
-# wandb logger
 vis_backends = [
     dict(type='LocalVisBackend'),
     dict(type='WandbVisBackend',
          init_kwargs={
-            'project': 'newmmdetection',
-            'entity': 'funfunfun',
-            'name': 'Final2_atss_lr_fold4'
+            'project': 'LAST_ATSS_JIHWAN',
+            'entity': 'yujihwan-yonsei-university',
+            'name': 'MIMIC_ATSS_JIHWAN'
          })
 ]
 visualizer = dict(type='DetLocalVisualizer', vis_backends=vis_backends, name='visualizer')

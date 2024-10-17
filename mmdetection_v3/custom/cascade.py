@@ -74,13 +74,15 @@ model = dict(
             nms=dict(type='nms', iou_threshold=0.5),
             max_per_img=300)))
 
-# wandb logger
-vis_backends = [dict(type='WandbVisBackend')]
-init_kwargs=dict(project='toy-example')
-visualizer = dict(vis_backends=[dict(type='WandbVisBackend', 
-                                     init_kwargs=dict(entity='funfunfun',
-                                                      project='newmmdetection',
-                                                      name='Final_cascade_fold5'))])
+vis_backends = [
+    dict(type='LocalVisBackend'),
+    dict(type='WandbVisBackend',
+         init_kwargs={
+            'project': 'LAST_ATSS_JIHWAN',
+            'entity': 'yujihwan-yonsei-university',
+            'name': 'MIMIC_ATSS_JIHWAN'
+         })
+]
 
 # logger val
 default_hooks = dict(
