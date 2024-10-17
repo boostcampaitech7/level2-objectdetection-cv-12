@@ -9,7 +9,6 @@ from mmengine.utils import mkdir_or_exist
 from mmdet.registry import HOOKS
 from mmdet.structures import DetDataSample
 import pandas as pd
-import re
 
 @HOOKS.register_module()
 class SubmissionHook(Hook):
@@ -28,7 +27,7 @@ class SubmissionHook(Hook):
     """
 
     def __init__(self, test_out_dir='submit'):
-        self.test_outputs_data = []
+        self.outputs_data = []
         self.test_out_dir = test_out_dir
 
     def after_test_iter(self, runner: Runner, batch_idx: int, data_batch: dict,
@@ -42,19 +41,17 @@ class SubmissionHook(Hook):
             outputs (Sequence[:obj:`DetDataSample`]): A batch of data samples
                 that contain annotations and predictions.
         """
-        
+
         for output in outputs:
             prediction_string = ''
-            for label, score, bbox in zip(output.pred_instances.labels, output.pred_instances.scores, output.pred_instances.bboxes):
-                bbox = bbox.cpu().numpy()
-                # 이미 xyxy로 되어있음
-                prediction_string += str(int(label.cpu())) + ' ' + str(float(score.cpu())) + ' ' + str(bbox[0]) + ' ' + str(bbox[1]) + ' ' + str(bbox[2]) + ' ' + str(bbox[3]) + ' '
-            match = re.search(r'test/(\d+\.jpg)', output.img_path)
-            if match:
-                self.test_outputs_data.append([int(match.group(1)[:4]), prediction_string, match.group(0)])
-            else:
-                assert 'File dir have Problem -- in Submission Hook'
-        
+            labels = output.pred_instances.labels.cpu().numpy()
+            scores = output.pred_instances.scores.cpu().numpy()
+            bboxes = output.pred_instances.bboxes.cpu().numpy()
+
+            for label, score, bbox in zip(labels, scores, bboxes):
+                prediction_string += f'{int(label)} {float(score)} {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]} '
+
+            self.outputs_data.append([prediction_string, output.img_path[-13:]])
 
     def after_test(self, runner: Runner):
         """
@@ -64,19 +61,18 @@ class SubmissionHook(Hook):
             runner (:obj:`Runner`): The runner of the testing process.
         """
         if self.test_out_dir is not None:
-            self.test_out_dir = osp.join(runner.work_dir, self.test_out_dir)
+            self.test_out_dir = osp.join(runner.work_dir, runner.timestamp,
+                                         self.test_out_dir)
             mkdir_or_exist(self.test_out_dir)
-        self.test_outputs_data.sort(key=lambda x: x[0])
-        
+
         prediction_strings = []
         file_names = []
-        for _, predict, file_name in self.test_outputs_data:
+        for predict, file_name in self.outputs_data:
             prediction_strings.append(predict)
             file_names.append(file_name)
 
         submission = pd.DataFrame()
         submission['PredictionString'] = prediction_strings
         submission['image_id'] = file_names
-        print(submission.head())
         submission.to_csv(osp.join(self.test_out_dir, 'submission.csv'), index=None)
         print('submission saved to {}'.format(osp.join(self.test_out_dir, 'submission.csv')))
