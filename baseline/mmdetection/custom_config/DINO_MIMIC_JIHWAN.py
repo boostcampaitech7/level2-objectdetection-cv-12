@@ -216,7 +216,7 @@ val_evaluator = dict(
     classwise=True,
     )
 
-test_evaluator = dict(ann_file=data_root + 'test.json')
+test_evaluator = dict(ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/test.json')
 
 #### Learning Policy ####
 max_epochs = 15
