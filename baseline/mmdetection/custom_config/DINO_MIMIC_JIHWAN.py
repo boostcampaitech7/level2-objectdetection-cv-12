@@ -103,7 +103,18 @@ model = dict(
 
 #### Hooks ####
 # hook for visualization
-# default_hooks = dict(visualization=dict(type="DetVisualizationHook",draw=True))
+#### Hooks ####
+default_hooks = dict(
+    checkpoint=dict(
+        type='CheckpointHook',
+        interval=-1,  # Disable periodic checkpoint saving
+        max_keep_ckpts=3,  # Keep only the latest 3 checkpoints
+        save_best='bbox_mAP_50',  # Save best checkpoints based on mAP 50
+        rule='greater',  # Higher mAP is better
+        best_checkpoint_max_keep=3  # Keep only the top 3 best checkpoints
+    ),
+    visualization=dict(type="DetVisualizationHook", draw=True)
+)
 
 # custom hooks
 custom_hooks = [dict(type='SubmissionHook')]
@@ -155,7 +166,7 @@ test_pipeline = [
                    'scale_factor'))
 ]
 
-data_root = '/data/ephemeral/home/dataset/'
+data_root = '/data/ephemeral/home/level2-objectdetection-cv-12/FOLD'
 metainfo = {
     'classes': ('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery', 'Clothing',),
@@ -172,7 +183,7 @@ train_dataloader = dict(
     dataset=dict(
         data_root=data_root,
         metainfo=metainfo,
-        ann_file='train_kfold_0.json',
+        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/train.json',
         data_prefix=dict(img=''),
         pipeline=train_pipeline))
 
@@ -182,7 +193,7 @@ val_dataloader = dict(
     dataset=dict(
         data_root=data_root,
         metainfo=metainfo,
-        ann_file='val_kfold_0.json',
+        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json',
         data_prefix=dict(img=''),
         pipeline=test_pipeline))
 
@@ -192,14 +203,14 @@ test_dataloader = dict(
     dataset=dict(
         data_root=data_root,
         metainfo=metainfo,
-        ann_file='test.json',
+        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/test.json',
         data_prefix=dict(img=''),
         pipeline=test_pipeline))
 
 ### evaluation ###
 val_evaluator = dict(
     type='CocoMetric',
-    ann_file=data_root + 'val_kfold_0.json',
+    ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json',
     metric='bbox',
     format_only=False,
     classwise=True,
@@ -208,7 +219,7 @@ val_evaluator = dict(
 test_evaluator = dict(ann_file=data_root + 'test.json')
 
 #### Learning Policy ####
-max_epochs = 12
+max_epochs = 15
 
 train_cfg = dict(
     type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=1)
@@ -249,10 +260,9 @@ vis_backends = [
     dict(type='LocalVisBackend'),
     dict(type='WandbVisBackend',
          init_kwargs={
-            'project': 'mmdetection',
-            'entity': 'ai_tech_level2_objectdetection2',
-            'group': 'dino',
-            'name': 'swin-l_5scale_original_epochs12'  # ex) swin-l_5scale_original_randaug_epochs6 형식으로 변경 해줄 것!
+            'project': 'DINO',
+            'entity': 'yujihwan-yonsei-university',
+            'name': 'DINO_NEWFOLD_12EPOCH'  # ex) swin-l_5scale_original_randaug_epochs6 형식으로 변경 해줄 것!
          })]
 
 
