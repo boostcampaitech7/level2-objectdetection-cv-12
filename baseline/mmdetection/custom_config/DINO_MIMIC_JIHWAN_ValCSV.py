@@ -192,7 +192,7 @@ test_dataloader = dict(
     dataset=dict(
         data_root=data_root,
         metainfo=metainfo,
-        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/test.json',
+        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json',
         data_prefix=dict(img=''),
         pipeline=test_pipeline))
 
@@ -205,7 +205,7 @@ val_evaluator = dict(
     classwise=True,
     )
 
-test_evaluator = dict(ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/test.json')
+test_evaluator = dict(ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json')
 
 #### Learning Policy ####
 max_epochs = 15

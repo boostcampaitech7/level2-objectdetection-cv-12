@@ -3,11 +3,11 @@ import json
 
 def main():
     # 저장할 경로 입력
-    save_path = '/data/ephemeral/home/dataset/yolo/labels'
+    save_path = '/data/ephemeral/home/level2-objectdetection-cv-12/yolov11/dataset_train_yolo'
     os.makedirs(save_path, exist_ok=True)
 
     # 읽어올 annotation 경로 입력
-    json_path = '/data/ephemeral/home/dataset/train.json'
+    json_path = '/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/train.json'
     with open(json_path, 'r') as f:
         json_data = json.load(f)
 

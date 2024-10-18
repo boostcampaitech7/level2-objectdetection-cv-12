@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.model_selection import StratifiedGroupKFold
 
 def main():
-    annotation = '/data/ephemeral/home/dataset/train.json'
+    annotation = '/data/ephemeral/home/level2-objectdetection-cv-12/dataset/train.json'
 
     with open(annotation) as f: 
         data = json.load(f)
@@ -14,13 +14,13 @@ def main():
     y = np.array([v[1] for v in var])
     groups = np.array([v[0] for v in var])
 
-    img_dir = '/data/ephemeral/home/dataset/yolo/images'
+    img_dir = '/data/ephemeral/home/level2-objectdetection-cv-12/dataset/train'
 
-    save_dir = '/data/ephemeral/home/dataset/yolo/split'
-    if not os.path.isdir('/data/ephemeral/home/dataset/yolo'):
-        os.mkdir('/data/ephemeral/home/dataset/yolo')
+    save_dir = '/data/ephemeral/home/level2-objectdetection-cv-12/yolov11/dataset_yolo'
+    
+    # 수정된 부분: os.makedirs 사용하여 상위 디렉토리도 자동 생성
     if not os.path.isdir(save_dir):
-        os.mkdir(save_dir)
+        os.makedirs(save_dir)
 
     SEED = 42
     sgkf = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=SEED)
