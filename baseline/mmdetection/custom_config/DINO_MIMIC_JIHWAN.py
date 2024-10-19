@@ -106,7 +106,7 @@ model = dict(
 # default_hooks = dict(visualization=dict(type="DetVisualizationHook",draw=True))
 
 # custom hooks
-custom_hooks = [dict(type='SubmissionHook')]
+custom_hooks = [dict(type='SubmissionHook_VALTEST')]
 
 ### Dataset
 # Augmentation
