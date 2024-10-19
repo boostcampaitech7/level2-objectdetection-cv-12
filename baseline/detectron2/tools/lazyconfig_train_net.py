@@ -29,7 +29,23 @@ from detectron2.engine.defaults import create_ddp_model
 from detectron2.evaluation import inference_on_dataset, print_csv_format
 from detectron2.utils import comm
 
-logger = logging.getLogger("detectron2")
+import os
+from detectron2.utils.logger import setup_logger
+
+
+# 로그 설정 ( output_log 폴더 안에서 output.log 라는 파일이 생성되고 거기서 실시간으로 진행상황이 보이게 된다.)
+log_output_dir = '../../output_logs'
+os.makedirs(log_output_dir, exist_ok=True)
+log_file = os.path.join(log_output_dir, 'output_Cascade_mask_RCNN_mvitv2_h.log')
+logger = setup_logger(output=log_file)
+logger.setLevel(logging.INFO)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+logger.addHandler(console_handler)
+
+# logger = logging.getLogger("detectron2")
+
+
 
 
 def do_test(cfg, model):
@@ -62,9 +78,9 @@ def do_train(args, cfg):
                 checkpointer (dict)
                 ddp (dict)
     """
-    model = instantiate(cfg.model)
-    logger = logging.getLogger("detectron2")
-    logger.info("Model:\n{}".format(model))
+    model = instantiate(cfg.model)    
+    # logger = logging.getLogger("detectron2")
+    # logger.info("Model:\n{}".format(model))
     model.to(cfg.train.device)
 
     cfg.optimizer.params.model = model
