@@ -1,0 +1,646 @@
+_wandb:
+    value:
+        cli_version: 0.18.3
+        m: []
+        python_version: 3.10.13
+        t:
+            "1":
+                - 1
+                - 37
+                - 38
+                - 41
+                - 55
+                - 80
+                - 82
+            "2":
+                - 1
+                - 5
+                - 37
+                - 38
+                - 41
+                - 43
+                - 53
+                - 55
+                - 80
+                - 82
+            "3":
+                - 2
+                - 13
+                - 23
+                - 55
+            "4": 3.10.13
+            "5": 0.18.3
+            "8":
+                - 5
+            "12": 0.18.3
+            "13": linux-x86_64
+auto_scale_lr:
+    value:
+        base_batch_size: 2
+backend_args:
+    value: null
+color_space:
+    value:
+        - - type: ColorTransform
+        - - type: AutoContrast
+        - - type: Equalize
+        - - type: Sharpness
+        - - type: Posterize
+        - - type: Solarize
+        - - type: Color
+        - - type: Contrast
+        - - type: Brightness
+custom_hooks:
+    value:
+        - type: SubmissionHook
+data_root:
+    value: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD
+dataset_type:
+    value: CocoDataset
+default_hooks:
+    value:
+        checkpoint:
+            interval: 1
+            type: CheckpointHook
+        logger:
+            interval: 50
+            type: LoggerHook
+        param_scheduler:
+            type: ParamSchedulerHook
+        sampler_seed:
+            type: DistSamplerSeedHook
+        timer:
+            type: IterTimerHook
+        visualization:
+            type: DetVisualizationHook
+default_scope:
+    value: mmdet
+env_cfg:
+    value:
+        cudnn_benchmark: false
+        dist_cfg:
+            backend: nccl
+        mp_cfg:
+            mp_start_method: fork
+            opencv_num_threads: 0
+image_size:
+    value:
+        - 1024
+        - 1024
+load_from:
+    value: /data/ephemeral/home/level2-objectdetection-cv-12/baseline/mmdetection/work_dirs/DINO_MIMIC_JIHWAN/epoch_11.pth
+log_level:
+    value: INFO
+log_processor:
+    value:
+        by_epoch: true
+        type: LogProcessor
+        window_size: 50
+max_epochs:
+    value: 15
+metainfo:
+    value:
+        classes:
+            - General trash
+            - Paper
+            - Paper pack
+            - Metal
+            - Glass
+            - Plastic
+            - Styrofoam
+            - Plastic bag
+            - Battery
+            - Clothing
+        palette:
+            - - 220
+              - 20
+              - 60
+            - - 119
+              - 11
+              - 32
+            - - 0
+              - 0
+              - 230
+            - - 106
+              - 0
+              - 228
+            - - 60
+              - 20
+              - 220
+            - - 0
+              - 80
+              - 100
+            - - 0
+              - 0
+              - 70
+            - - 50
+              - 0
+              - 192
+            - - 250
+              - 170
+              - 30
+            - - 255
+              - 0
+              - 0
+model:
+    value:
+        as_two_stage: true
+        backbone:
+            attn_drop_rate: 0
+            convert_weights: true
+            depths:
+                - 2
+                - 2
+                - 18
+                - 2
+            drop_path_rate: 0.2
+            drop_rate: 0
+            embed_dims: 192
+            init_cfg:
+                checkpoint: https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window12_384_22k.pth
+                type: Pretrained
+            mlp_ratio: 4
+            num_heads:
+                - 6
+                - 12
+                - 24
+                - 48
+            out_indices:
+                - 0
+                - 1
+                - 2
+                - 3
+            patch_norm: true
+            pretrain_img_size: 384
+            qk_scale: null
+            qkv_bias: true
+            type: SwinTransformer
+            window_size: 12
+            with_cp: true
+        bbox_head:
+            loss_bbox:
+                loss_weight: 5
+                type: L1Loss
+            loss_cls:
+                alpha: 0.25
+                gamma: 2
+                loss_weight: 1
+                type: FocalLoss
+                use_sigmoid: true
+            loss_iou:
+                loss_weight: 2
+                type: GIoULoss
+            num_classes: 10
+            sync_cls_avg_factor: true
+            type: DINOHead
+        data_preprocessor:
+            bgr_to_rgb: true
+            mean:
+                - 123.675
+                - 116.28
+                - 103.53
+            pad_size_divisor: 1
+            std:
+                - 58.395
+                - 57.12
+                - 57.375
+            type: DetDataPreprocessor
+        decoder:
+            layer_cfg:
+                cross_attn_cfg:
+                    dropout: 0
+                    embed_dims: 256
+                    num_levels: 5
+                ffn_cfg:
+                    embed_dims: 256
+                    feedforward_channels: 2048
+                    ffn_drop: 0
+                self_attn_cfg:
+                    dropout: 0
+                    embed_dims: 256
+                    num_heads: 8
+            num_layers: 6
+            post_norm_cfg: null
+            return_intermediate: true
+        dn_cfg:
+            box_noise_scale: 1
+            group_cfg:
+                dynamic: true
+                num_dn_queries: 100
+                num_groups: null
+            label_noise_scale: 0.5
+        encoder:
+            layer_cfg:
+                ffn_cfg:
+                    embed_dims: 256
+                    feedforward_channels: 2048
+                    ffn_drop: 0
+                self_attn_cfg:
+                    dropout: 0
+                    embed_dims: 256
+                    num_levels: 5
+            num_layers: 6
+        neck:
+            act_cfg: null
+            in_channels:
+                - 192
+                - 384
+                - 768
+                - 1536
+            kernel_size: 1
+            norm_cfg:
+                num_groups: 32
+                type: GN
+            num_outs: 5
+            out_channels: 256
+            type: ChannelMapper
+        num_feature_levels: 5
+        num_queries: 900
+        positional_encoding:
+            normalize: true
+            num_feats: 128
+            offset: 0
+            temperature: 20
+        test_cfg:
+            max_per_img: 300
+        train_cfg:
+            assigner:
+                match_costs:
+                    - type: FocalLossCost
+                      weight: 2
+                    - box_format: xywh
+                      type: BBoxL1Cost
+                      weight: 5
+                    - iou_mode: giou
+                      type: IoUCost
+                      weight: 2
+                type: HungarianAssigner
+        type: DINO
+        with_box_refine: true
+optim_wrapper:
+    value:
+        clip_grad:
+            max_norm: 0.1
+            norm_type: 2
+        optimizer:
+            lr: 0.0001
+            type: AdamW
+            weight_decay: 0.0001
+        paramwise_cfg:
+            custom_keys:
+                backbone:
+                    lr_mult: 0.1
+        type: OptimWrapper
+param_scheduler:
+    value:
+        - T_max: 15
+          begin: 0
+          by_epoch: true
+          convert_to_iter_based: true
+          end: 15
+          eta_min: 0
+          type: CosineAnnealingLR
+pretrained:
+    value: https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window12_384_22k.pth
+resume:
+    value: false
+test_cfg:
+    value:
+        type: TestLoop
+test_dataloader:
+    value:
+        batch_size: 8
+        dataset:
+            ann_file: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json
+            backend_args: null
+            data_prefix:
+                img: ""
+            data_root: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD
+            metainfo:
+                classes:
+                    - General trash
+                    - Paper
+                    - Paper pack
+                    - Metal
+                    - Glass
+                    - Plastic
+                    - Styrofoam
+                    - Plastic bag
+                    - Battery
+                    - Clothing
+                palette:
+                    - - 220
+                      - 20
+                      - 60
+                    - - 119
+                      - 11
+                      - 32
+                    - - 0
+                      - 0
+                      - 230
+                    - - 106
+                      - 0
+                      - 228
+                    - - 60
+                      - 20
+                      - 220
+                    - - 0
+                      - 80
+                      - 100
+                    - - 0
+                      - 0
+                      - 70
+                    - - 50
+                      - 0
+                      - 192
+                    - - 250
+                      - 170
+                      - 30
+                    - - 255
+                      - 0
+                      - 0
+            pipeline:
+                - backend_args: null
+                  type: LoadImageFromFile
+                - keep_ratio: true
+                  scale:
+                    - 1024
+                    - 1024
+                  type: Resize
+                - type: LoadAnnotations
+                  with_bbox: true
+                - meta_keys:
+                    - img_id
+                    - img_path
+                    - ori_shape
+                    - img_shape
+                    - scale_factor
+                  type: PackDetInputs
+            test_mode: true
+            type: CocoDataset
+        drop_last: false
+        num_workers: 4
+        persistent_workers: true
+        sampler:
+            shuffle: false
+            type: DefaultSampler
+test_evaluator:
+    value:
+        ann_file: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json
+        backend_args: null
+        format_only: false
+        metric: bbox
+        outfile_prefix: /data/ephemeral/home/level2-objectdetection-cv-12/testforval
+        type: CocoMetric
+test_pipeline:
+    value:
+        - backend_args: null
+          type: LoadImageFromFile
+        - keep_ratio: true
+          scale:
+            - 1024
+            - 1024
+          type: Resize
+        - type: LoadAnnotations
+          with_bbox: true
+        - meta_keys:
+            - img_id
+            - img_path
+            - ori_shape
+            - img_shape
+            - scale_factor
+          type: PackDetInputs
+train_cfg:
+    value:
+        max_epochs: 15
+        type: EpochBasedTrainLoop
+        val_interval: 1
+train_dataloader:
+    value:
+        batch_sampler:
+            type: AspectRatioBatchSampler
+        batch_size: 2
+        dataset:
+            ann_file: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD/train.json
+            backend_args: null
+            data_prefix:
+                img: ""
+            data_root: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD
+            filter_cfg:
+                filter_empty_gt: true
+                min_size: 32
+            metainfo:
+                classes:
+                    - General trash
+                    - Paper
+                    - Paper pack
+                    - Metal
+                    - Glass
+                    - Plastic
+                    - Styrofoam
+                    - Plastic bag
+                    - Battery
+                    - Clothing
+                palette:
+                    - - 220
+                      - 20
+                      - 60
+                    - - 119
+                      - 11
+                      - 32
+                    - - 0
+                      - 0
+                      - 230
+                    - - 106
+                      - 0
+                      - 228
+                    - - 60
+                      - 20
+                      - 220
+                    - - 0
+                      - 80
+                      - 100
+                    - - 0
+                      - 0
+                      - 70
+                    - - 50
+                      - 0
+                      - 192
+                    - - 250
+                      - 170
+                      - 30
+                    - - 255
+                      - 0
+                      - 0
+            pipeline:
+                - backend_args: null
+                  type: LoadImageFromFile
+                - type: LoadAnnotations
+                  with_bbox: true
+                - keep_ratio: true
+                  scale:
+                    - 1024
+                    - 1024
+                  type: Resize
+                - prob: 0.5
+                  type: RandomFlip
+                - keep_ratio: true
+                  ratio_range:
+                    - 0.1
+                    - 2
+                  scale:
+                    - 1024
+                    - 1024
+                  type: RandomResize
+                - allow_negative_crop: true
+                  crop_size:
+                    - 1024
+                    - 1024
+                  crop_type: absolute_range
+                  recompute_bbox: true
+                  type: RandomCrop
+                - type: PackDetInputs
+            type: CocoDataset
+        num_workers: 4
+        persistent_workers: true
+        sampler:
+            shuffle: true
+            type: DefaultSampler
+train_pipeline:
+    value:
+        - backend_args: null
+          type: LoadImageFromFile
+        - type: LoadAnnotations
+          with_bbox: true
+        - keep_ratio: true
+          scale:
+            - 1024
+            - 1024
+          type: Resize
+        - prob: 0.5
+          type: RandomFlip
+        - keep_ratio: true
+          ratio_range:
+            - 0.1
+            - 2
+          scale:
+            - 1024
+            - 1024
+          type: RandomResize
+        - allow_negative_crop: true
+          crop_size:
+            - 1024
+            - 1024
+          crop_type: absolute_range
+          recompute_bbox: true
+          type: RandomCrop
+        - type: PackDetInputs
+val_cfg:
+    value:
+        type: ValLoop
+val_dataloader:
+    value:
+        batch_size: 1
+        dataset:
+            ann_file: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json
+            backend_args: null
+            data_prefix:
+                img: ""
+            data_root: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD
+            metainfo:
+                classes:
+                    - General trash
+                    - Paper
+                    - Paper pack
+                    - Metal
+                    - Glass
+                    - Plastic
+                    - Styrofoam
+                    - Plastic bag
+                    - Battery
+                    - Clothing
+                palette:
+                    - - 220
+                      - 20
+                      - 60
+                    - - 119
+                      - 11
+                      - 32
+                    - - 0
+                      - 0
+                      - 230
+                    - - 106
+                      - 0
+                      - 228
+                    - - 60
+                      - 20
+                      - 220
+                    - - 0
+                      - 80
+                      - 100
+                    - - 0
+                      - 0
+                      - 70
+                    - - 50
+                      - 0
+                      - 192
+                    - - 250
+                      - 170
+                      - 30
+                    - - 255
+                      - 0
+                      - 0
+            pipeline:
+                - backend_args: null
+                  type: LoadImageFromFile
+                - keep_ratio: true
+                  scale:
+                    - 1024
+                    - 1024
+                  type: Resize
+                - type: LoadAnnotations
+                  with_bbox: true
+                - meta_keys:
+                    - img_id
+                    - img_path
+                    - ori_shape
+                    - img_shape
+                    - scale_factor
+                  type: PackDetInputs
+            test_mode: true
+            type: CocoDataset
+        drop_last: false
+        num_workers: 4
+        persistent_workers: true
+        sampler:
+            shuffle: false
+            type: DefaultSampler
+val_evaluator:
+    value:
+        ann_file: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json
+        backend_args: null
+        classwise: true
+        format_only: false
+        metric: bbox
+        type: CocoMetric
+vis_backends:
+    value:
+        - type: LocalVisBackend
+        - init_kwargs:
+            entity: yujihwan-yonsei-university
+            name: DINO_NEWFOLD_12EPOCH
+            project: DINO
+          type: WandbVisBackend
+visualizer:
+    value:
+        name: visualizer
+        type: DetLocalVisualizer
+        vis_backends:
+            - type: LocalVisBackend
+            - init_kwargs:
+                entity: yujihwan-yonsei-university
+                name: DINO_NEWFOLD_12EPOCH
+                project: DINO
+              type: WandbVisBackend
+work_dir:
+    value: /data/ephemeral/home/level2-objectdetection-cv-12/testforval
