@@ -7,11 +7,12 @@ from ensemble_boxes import *
 def main():
     # ensemble 진행할 파일 경로 입력
     csv_files = [
-        '/data/ephemeral/home/level2-objectdetection-cv-03/yolov5/runs/detect/',
-        '/data/ephemeral/home/level2-objectdetection-cv-03/yolov5/runs/detect/',
-        '/data/ephemeral/home/level2-objectdetection-cv-03/yolov5/runs/detect/',
-        '/data/ephemeral/home/level2-objectdetection-cv-03/yolov5/runs/detect/',
-        '/data/ephemeral/home/level2-objectdetection-cv-03/yolov5/runs/detect/'
+        '/data/ephemeral/home/level2-objectdetection-cv-12/atss.csv',
+        '/data/ephemeral/home/level2-objectdetection-cv-12/cascade.csv',
+        '/data/ephemeral/home/level2-objectdetection-cv-12/codetr.csv',
+        '/data/ephemeral/home/level2-objectdetection-cv-12/DINO_NEWFOLD.csv',
+        '/data/ephemeral/home/level2-objectdetection-cv-12/DINO.csv',
+        '/data/ephemeral/home/level2-objectdetection-cv-12/updated_test_results_yolo.csv'
     ]
 
     combined_df = [pd.read_csv(f) for f in csv_files]
@@ -54,10 +55,10 @@ def main():
         # 진행할 ensemble 방법 선택
         iou_thr = 0.5
         if len(boxes_list):
-            boxes, scores, labels = nms(boxes_list, scores_list, labels_list, iou_thr=iou_thr)
+            # boxes, scores, labels = nms(boxes_list, scores_list, labels_list, iou_thr=iou_thr)
             # boxes, scores, labels = soft_nms(box_list, scores_list, labels_list, iou_thr=iou_thr)
             # boxes, scores, labels = non_maximum_weighted(boxes_list, scores_list, labels_list, iou_thr=iou_thr)
-            # boxes, scores, labels = weighted_boxes_fusion(boxes_list, scores_list, labels_list, iou_thr=iou_thr, conf_type='box_and_model_avg')
+            boxes, scores, labels = weighted_boxes_fusion(boxes_list, scores_list, labels_list, iou_thr=iou_thr, conf_type='box_and_model_avg')
             # boxes, scores, labels = weighted_boxes_fusion(boxes_list, scores_list, labels_list, iou_thr=iou_thr)
 
             for box, score, label in zip(boxes, scores, labels):
@@ -71,7 +72,7 @@ def main():
     submission['image_id'] = file_names
 
     # 결과 저장할 디렉토리 입력
-    save_dir = '/data/ephemeral/home/'
+    save_dir = '/data/ephemeral/home/level2-objectdetection-cv-12/ensemble'
 
     # 저장할 파일명 입력
     submission.to_csv(os.path.join(save_dir, 'submission.csv'), index=False)

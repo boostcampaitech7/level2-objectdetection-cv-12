@@ -296,7 +296,7 @@ model = dict(
 
 ### Dataset ###
 ### 중요 ! -> 데이터셋 경로 및 json 파일 확인 !!! ###
-data_root = '/data/ephemeral/home/dataset/'
+data_root = '/data/ephemeral/home/level2-objectdetection-cv-12/FOLD'
 metainfo = {
     'classes': ('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery', 'Clothing',),
@@ -349,7 +349,7 @@ train_dataloader = dict(
         data_root=data_root,
         metainfo=metainfo,
         ### json 경로 확인 !!! ###
-        ann_file='train_kfold_0.json',
+        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/train.json',
         data_prefix=dict(img=''),
         pipeline=train_pipeline))
 
@@ -367,7 +367,7 @@ val_dataloader = dict(
         data_root=data_root,
         metainfo=metainfo,
         ### json 경로 확인 !!! ###
-        ann_file='val_kfold_0.json',
+        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json',
         data_prefix=dict(img=''),
         pipeline=test_pipeline))
 
@@ -378,14 +378,14 @@ test_dataloader = dict(
         data_root=data_root,
         metainfo=metainfo,
         ### json 경로 확인 !!! ###
-        ann_file='test.json',
+        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/test.json',
         data_prefix=dict(img=''),
         pipeline=test_pipeline))
 
 val_evaluator = dict(
     type='CocoMetric',
     ### json 경로 확인 !!! ###
-    ann_file=data_root + 'val_kfold_0.json',
+    ann_file=data_root + '/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json',
     metric='bbox',
     format_only=False,
     classwise=True,
@@ -394,7 +394,7 @@ val_evaluator = dict(
 test_evaluator = dict(
     type='CocoMetric',
     ### json 경로 확인 !!! ###
-    ann_file=data_root + 'test.json',
+    ann_file=data_root + '/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/test.json',
     metric='bbox',
     format_only=False,
     classwise=True,
@@ -453,10 +453,9 @@ vis_backends = [
     dict(type='LocalVisBackend'),
     dict(type='WandbVisBackend',
          init_kwargs={
-            'project': 'mmdetection',
-            'entity': 'ai_tech_level2_objectdetection2',
-            'group': 'co_detr',
-            'name': 'swin-l_original_epochs12'  # name 변경 해줄 것!
+            'project': 'CODETR',
+            'entity': 'yujihwan-yonsei-university',
+            'name': 'CODETR_12EPOCH'  # ex) swin-l_5scale_original_randaug_epochs6 형식으로 변경 해줄 것!
          })]
 
 visualizer = dict(
