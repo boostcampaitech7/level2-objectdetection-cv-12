@@ -3,7 +3,7 @@ _base_ = [
     '../configs/_base_/default_runtime.py'
 ]
 
-pretrained = 'https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window12_384_22k.pth'
+pretrained = '/data/ephemeral/home/level2-objectdetection-cv-12/eva02_large_patch14_448.mim_m38m_ft_in22k_in1k.ckpt'
 
 ### Model ###
 model = dict(
@@ -18,34 +18,39 @@ model = dict(
         bgr_to_rgb=True,
         pad_size_divisor=1),
     num_feature_levels=5,
+
+    # 백본 설정을 EVA02Backbone으로 변경
     backbone=dict(
-        type='SwinTransformer',
-        pretrain_img_size=384,
-        embed_dims=192,
-        depths=[2, 2, 18, 2],
-        num_heads=[6, 12, 24, 48],
-        window_size=12,
-        mlp_ratio=4,
+        type='EVA02Backbone',  # 변경된 부분
+        img_size=1024,  # EVA02의 입력 이미지 크기에 맞춤
+        patch_size=14,  # EVA02의 패치 크기에 맞춤
+        in_chans=3,
+        embed_dim=1024,  # EVA02의 임베딩 차원
+        depth=24,  # EVA02의 블록 깊이
+        num_heads=16,  # EVA02의 어텐션 헤드 수
+        mlp_ratio=8 / 3,
         qkv_bias=True,
-        qk_scale=None,
         drop_rate=0.,
         attn_drop_rate=0.,
-        drop_path_rate=0.2,
-        patch_norm=True,
-        out_indices=(0, 1, 2, 3),
-        # Please only add indices that would be used
-        # in FPN, otherwise some parameter will not be used
-        with_cp=True,
-        convert_weights=True,
-        init_cfg=dict(type='Pretrained', checkpoint=pretrained)),
+        drop_path_rate=0.1,
+        norm_cfg=dict(type='LN'),
+        out_indices=(7, 11, 15, 23),
+        with_cp=False,
+        init_cfg=dict(
+            type='Pretrained',
+            checkpoint=pretrained  # 사전 학습된 가중치 경로
+        )),
+    
+    # FPN의 in_channels를 EVA02의 출력 채널 수에 맞춤
     neck=dict(
         type='ChannelMapper',
-        in_channels=[192, 384, 768, 1536],
+        in_channels=[1024, 1024, 1024, 1024],  # 변경된 부분: EVA02의 출력 채널 수
         kernel_size=1,
         out_channels=256,
         act_cfg=None,
         norm_cfg=dict(type='GN', num_groups=32),
         num_outs=5),
+    
     encoder=dict(
         num_layers=6,
         layer_cfg=dict(
@@ -122,7 +127,7 @@ color_space = [
     [dict(type='Brightness')],
 ]
 
-### Augmenation Rule 확인 !!!
+### Augmentation Rule 확인 !!!
 image_size = (1024, 1024)
 train_pipeline = [
     dict(type='LoadImageFromFile', backend_args=_base_.backend_args),
@@ -249,11 +254,10 @@ vis_backends = [
     dict(type='LocalVisBackend'),
     dict(type='WandbVisBackend',
          init_kwargs={
-            'project': 'DINO',
+            'project': 'EVA',
             'entity': 'yujihwan-yonsei-university',
-            'name': 'DINO_NEWFOLD_12EPOCH'  # ex) swin-l_5scale_original_randaug_epochs6 형식으로 변경 해줄 것!
+            'name': 'EVA_12EPOCH'  # ex) swin-l_5scale_original_randaug_epochs6 형식으로 변경 해줄 것!
          })]
-
 
 visualizer = dict(
     type='DetLocalVisualizer',
@@ -267,3 +271,4 @@ visualizer = dict(
 auto_scale_lr = dict(base_batch_size=2)
 
 load_from = 'https://download.openmmlab.com/mmdetection/v3.0/dino/dino-5scale_swin-l_8xb2-12e_coco/dino-5scale_swin-l_8xb2-12e_coco_20230228_072924-a654145f.pth'
+

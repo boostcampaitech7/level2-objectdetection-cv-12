@@ -9,7 +9,6 @@ pretrained = 'https://github.com/SwinTransformer/storage/releases/download/v1.0.
 model = dict(
     type='ConditionalDETR',  # Changed from 'DINO' to 'ConditionalDETR'
     num_queries=300,  # Adjusted number of queries as per CO-DETR requirements
-    with_box_refine=False,
     as_two_stage=False,  # CO-DETR typically uses a single-stage approach
     data_preprocessor=dict(
         type='DetDataPreprocessor',

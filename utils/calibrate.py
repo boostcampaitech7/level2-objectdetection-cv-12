@@ -3,7 +3,7 @@ from tqdm import tqdm
 
 def main():
     # calibration 적용할 csv 파일 경로
-    df = pd.read_csv('/data/ephemeral/home/level2-objectdetection-cv-03/submission.csv')
+    df = pd.read_csv('/data/ephemeral/home/level2-objectdetection-cv-12/DINO.csv')
 
     df_score_list = []
     for pred_str in tqdm(df['PredictionString']):
@@ -23,7 +23,7 @@ def main():
     df['PredictionString'] = pred_str_list
     
     # 저장할 경로
-    df.to_csv('/data/ephemeral/home/level2-objectdetection-cv-03/cal_submission.csv', index=False)
+    df.to_csv('/data/ephemeral/home/level2-objectdetection-cv-12/cal_DINO_submission.csv', index=False)
 
 if __name__ == '__main__':
     main()

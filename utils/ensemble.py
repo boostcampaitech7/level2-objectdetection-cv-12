@@ -53,13 +53,13 @@ def main():
             labels_list.append(list(map(int, predict_list[:, 0].tolist())))
         
         # 진행할 ensemble 방법 선택
-        iou_thr = 0.5
+        iou_thr = 0.9
         if len(boxes_list):
             # boxes, scores, labels = nms(boxes_list, scores_list, labels_list, iou_thr=iou_thr)
             # boxes, scores, labels = soft_nms(box_list, scores_list, labels_list, iou_thr=iou_thr)
             # boxes, scores, labels = non_maximum_weighted(boxes_list, scores_list, labels_list, iou_thr=iou_thr)
-            boxes, scores, labels = weighted_boxes_fusion(boxes_list, scores_list, labels_list, iou_thr=iou_thr, conf_type='box_and_model_avg')
-            # boxes, scores, labels = weighted_boxes_fusion(boxes_list, scores_list, labels_list, iou_thr=iou_thr)
+            # boxes, scores, labels = weighted_boxes_fusion(boxes_list, scores_list, labels_list, iou_thr=iou_thr, conf_type='box_and_model_avg')
+            boxes, scores, labels = weighted_boxes_fusion(boxes_list, scores_list, labels_list, iou_thr=iou_thr)
 
             for box, score, label in zip(boxes, scores, labels):
                 prediction_string += str(int(label)) + ' ' + str(score) + ' ' + str(box[0] * img_width) + ' ' + str(box[1] * img_height) + ' ' + str(box[2] * img_width) + ' ' + str(box[3] * img_height) + ' '
@@ -75,7 +75,7 @@ def main():
     save_dir = '/data/ephemeral/home/level2-objectdetection-cv-12/ensemble'
 
     # 저장할 파일명 입력
-    submission.to_csv(os.path.join(save_dir, 'submission.csv'), index=False)
+    submission.to_csv(os.path.join(save_dir, '6sum_submission.csv'), index=False)
 
 if __name__ == '__main__':
     main()

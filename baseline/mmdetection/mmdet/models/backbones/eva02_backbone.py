@@ -14,7 +14,7 @@ from mmcv.cnn.bricks.transformer import FFN, build_dropout
 from mmengine.logging import MMLogger
 from mmengine.model import BaseModule, ModuleList
 from mmengine.model.weight_init import constant_init, trunc_normal_
-from mmengine.runner.checkpoint import CheckpointLoader
+from mmengine.runner.checkpoint import load_checkpoint  # 추가된 임포트
 from mmengine.utils import to_2tuple
 
 from mmdet.registry import MODELS
@@ -22,7 +22,7 @@ from timm.models.layers import PatchEmbed, LayerNorm, DropPath
 
 @MODELS.register_module()
 class EVA02Backbone(BaseModule):
-    """EVA02 Backbone for use in mmdetection.
+    """EVA02 Backbone for use in MMDetection.
 
     Args:
         img_size (int | tuple): Input image size. Defaults to 448.
@@ -43,7 +43,7 @@ class EVA02Backbone(BaseModule):
     """
 
     def __init__(self,
-                 img_size=448,
+                 img_size=1024,
                  patch_size=14,
                  in_chans=3,
                  embed_dim=1024,
@@ -63,7 +63,7 @@ class EVA02Backbone(BaseModule):
         self.out_indices = out_indices
         self.with_cp = with_cp
 
-        # 패치 임베딩
+        # Patch Embedding
         self.patch_embed = PatchEmbed(
             img_size=img_size,
             patch_size=patch_size,
@@ -73,16 +73,16 @@ class EVA02Backbone(BaseModule):
         num_patches = self.patch_embed.num_patches
         self.num_prefix_tokens = 1  # cls_token
 
-        # 클래스 토큰 및 위치 임베딩
+        # CLS token and positional embedding
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
         self.pos_embed = nn.Parameter(
             torch.zeros(1, num_patches + self.num_prefix_tokens, embed_dim)
         )
         self.pos_drop = nn.Dropout(p=drop_rate)
 
-        # Transformer 블록
+        # Transformer blocks
         dpr = [x.item() for x in torch.linspace(0, drop_path_rate, depth)]  # stochastic depth decay rule
-        self.blocks = nn.ModuleList([
+        self.blocks = ModuleList([
             EvaBlock(
                 dim=embed_dim,
                 num_heads=num_heads,
@@ -96,16 +96,16 @@ class EVA02Backbone(BaseModule):
             for i in range(depth)
         ])
 
-        # 최종 LayerNorm
+        # Final LayerNorm
         self.norm = build_norm_layer(norm_cfg, embed_dim)[1]
 
-        # 출력에 대한 LayerNorm 추가
+        # LayerNorm for each output stage
         for i in out_indices:
             layer = build_norm_layer(norm_cfg, embed_dim)[1]
             layer_name = f'norm{i}'
             self.add_module(layer_name, layer)
 
-        # 가중치 초기화
+        # Initialize weights
         self._init_weights()
 
     def _init_weights(self):
@@ -131,7 +131,7 @@ class EVA02Backbone(BaseModule):
                 logger.warning('No checkpoint specified in init_cfg')
                 return
             else:
-                load_checkpoint(self, checkpoint, strict=False, logger=logger)
+                load_checkpoint(self, checkpoint, strict=False, logger=logger)  # load_checkpoint 호출
 
     def forward(self, x):
         B = x.shape[0]
@@ -141,8 +141,8 @@ class EVA02Backbone(BaseModule):
 
         cls_tokens = self.cls_token.expand(B, -1, -1)  # B, 1, C
         x = torch.cat((cls_tokens, x), dim=1)  # B, 1+N, C
-        x = x + self.pos_embed  # 위치 임베딩 추가
-        x = self.pos_drop(x)  # 드롭아웃
+        x = x + self.pos_embed  # Add positional embedding
+        x = self.pos_drop(x)  # Dropout
 
         outs = []
         for i, blk in enumerate(self.blocks):
@@ -153,7 +153,7 @@ class EVA02Backbone(BaseModule):
             if i in self.out_indices:
                 norm_layer = getattr(self, f'norm{i}')
                 out = norm_layer(x)
-                out = out[:, 1:]  # cls_token 제외
+                out = out[:, 1:]  # Exclude cls_token
                 B, N, C = out.shape
                 out = out.transpose(1, 2).reshape(B, C, Wh, Ww).contiguous()
                 outs.append(out)
@@ -179,7 +179,7 @@ class EvaAttention(nn.Module):
         qkv = qkv.reshape(B, N, 3, self.num_heads, C // self.num_heads)  # B, N, 3, num_heads, head_dim
         qkv = qkv.permute(2, 0, 3, 1, 4)  # 3, B, num_heads, N, head_dim
 
-        q, k, v = qkv[0], qkv[1], qkv[2]  # 각각의 텐서 크기: B, num_heads, N, head_dim
+        q, k, v = qkv[0], qkv[1], qkv[2]  # Each tensor shape: B, num_heads, N, head_dim
 
         attn = (q @ k.transpose(-2, -1)) * self.scale  # B, num_heads, N, N
         attn = attn.softmax(dim=-1)
@@ -220,6 +220,6 @@ class EvaBlock(nn.Module):
         )
 
     def forward(self, x):
-        x = x + self.drop_path(self.attn(self.norm1(x)))  # 첫 번째 잔차 연결
-        x = x + self.drop_path(self.mlp(self.norm2(x)))  # 두 번째 잔차 연결
+        x = x + self.drop_path(self.attn(self.norm1(x)))  # First residual connection
+        x = x + self.drop_path(self.mlp(self.norm2(x)))  # Second residual connection
         return x

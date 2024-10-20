@@ -385,7 +385,7 @@ test_dataloader = dict(
 val_evaluator = dict(
     type='CocoMetric',
     ### json 경로 확인 !!! ###
-    ann_file=data_root + '/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json',
+    ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json',
     metric='bbox',
     format_only=False,
     classwise=True,
@@ -394,7 +394,7 @@ val_evaluator = dict(
 test_evaluator = dict(
     type='CocoMetric',
     ### json 경로 확인 !!! ###
-    ann_file=data_root + '/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/test.json',
+    ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/test.json',
     metric='bbox',
     format_only=False,
     classwise=True,
