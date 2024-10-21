@@ -75,12 +75,15 @@ model = dict(
             max_per_img=300)))
 
 # wandb logger
-vis_backends = [dict(type='WandbVisBackend')]
-init_kwargs=dict(project='toy-example')
-visualizer = dict(vis_backends=[dict(type='WandbVisBackend', 
-                                     init_kwargs=dict(entity='funfunfun',
-                                                      project='newmmdetection',
-                                                      name='Final_cascade_fold5'))])
+### wandb ###
+vis_backends = [
+    dict(type='LocalVisBackend'),
+    dict(type='WandbVisBackend',
+         init_kwargs={
+            'project': 'DINO',
+            'entity': 'yujihwan-yonsei-university',
+            'name': 'DINO_NEWFOLD_12EPOCH'  # ex) swin-l_5scale_original_randaug_epochs6 형식으로 변경 해줄 것!
+         })]
 
 # logger val
 default_hooks = dict(
@@ -115,38 +118,31 @@ optim_wrapper = dict(
     paramwise_cfg=dict(custom_keys={'backbone': dict(lr_mult=0.1)})
 )  # custom_keys contains sampling_offsets and reference_points in DeformDETR  # noqa
 
-# learning rate
-param_scheduler = [
-    dict(
-        type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500),
-    dict(
-        type='MultiStepLR',
-        begin=0,
-        end=20,
-        by_epoch=True,
-        milestones=[2, 8, 11],
-        gamma=0.5)
-]
-
 custom_hooks = [dict(type='SubmissionHook')]
 
-# learning rate
+# Select Multistep or CosineAnnealing
 param_scheduler = [
+    # dict(
+    #     type='MultiStepLR',
+    #     begin=1,
+    #     end=max_epochs,
+    #     by_epoch=True,
+    #     milestones=[4, 5],
+    #     gamma=0.1),
     dict(
-        type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500),
-    dict(
-        type='MultiStepLR',
+        type='CosineAnnealingLR',
+        eta_min=0.0,
         begin=0,
-        end=20,
+        T_max=max_epochs,
+        end=max_epochs,
         by_epoch=True,
-        milestones=[16, 19],
-        gamma=0.1)
-]
+        convert_to_iter_based=True)]
+
 
 
 # dataset settings
 dataset_type = 'CocoDataset'
-data_root = '/data/ephemeral/home/dataset/'
+data_root = '/data/ephemeral/home/level2-objectdetection-cv-12/FOLD'
 classes = ("General trash", "Paper", "Paper pack", "Metal", "Glass", 
             "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
 
@@ -225,7 +221,7 @@ train_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file='split_convert/train_42_fold_4.json',
+        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/train.json',
         data_prefix=dict(img=data_root),
         filter_cfg=dict(filter_empty_gt=True, min_size=32),
         pipeline=train_pipeline,
@@ -241,7 +237,7 @@ val_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file='split_convert/val_42_fold_4.json',
+        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json',
         data_prefix=dict(img=data_root),
         test_mode=True,
         pipeline=test_pipeline,
@@ -266,7 +262,7 @@ test_dataloader = dict(
 
 val_evaluator = dict(
     type='CocoMetric',
-    ann_file=data_root+'split_convert/val_42_fold_4.json',
+    ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json',
     metric='bbox',
     format_only=False,
     classwise=True,
@@ -274,7 +270,7 @@ val_evaluator = dict(
 
 test_evaluator = dict(
     type='CocoMetric',
-    ann_file=data_root+'test.json',
+    ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/test.json',
     metric='bbox',
     format_only=False,
     backend_args=backend_args)
