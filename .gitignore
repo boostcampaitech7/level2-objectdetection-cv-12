@@ -4,3 +4,7 @@
 *.log
 *.txt
 *.csv
+*.chche
+*.png
+*.pt
+*.wandb

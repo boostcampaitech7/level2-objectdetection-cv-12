@@ -1,5 +1,5 @@
-train: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD/train/yolo_train.txt 
-val: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val/yolo_val.txt
+train: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD_YOLO/train/yolo_train.txt
+val: /data/ephemeral/home/level2-objectdetection-cv-12/FOLD_YOLO/val/yolo_val.txt
 
 nc: 10
 names:

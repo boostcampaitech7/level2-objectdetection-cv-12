@@ -9,10 +9,8 @@ def main():
     csv_files = [
         '/data/ephemeral/home/level2-objectdetection-cv-12/atss.csv',
         '/data/ephemeral/home/level2-objectdetection-cv-12/cascade.csv',
-        '/data/ephemeral/home/level2-objectdetection-cv-12/codetr.csv',
         '/data/ephemeral/home/level2-objectdetection-cv-12/DINO_NEWFOLD.csv',
-        '/data/ephemeral/home/level2-objectdetection-cv-12/DINO.csv',
-        '/data/ephemeral/home/level2-objectdetection-cv-12/updated_test_results_yolo.csv'
+        '/data/ephemeral/home/level2-objectdetection-cv-12/YOLOv8.csv',
     ]
 
     combined_df = [pd.read_csv(f) for f in csv_files]
@@ -53,7 +51,7 @@ def main():
             labels_list.append(list(map(int, predict_list[:, 0].tolist())))
         
         # 진행할 ensemble 방법 선택
-        iou_thr = 0.9
+        iou_thr = 0.6
         if len(boxes_list):
             # boxes, scores, labels = nms(boxes_list, scores_list, labels_list, iou_thr=iou_thr)
             # boxes, scores, labels = soft_nms(box_list, scores_list, labels_list, iou_thr=iou_thr)
@@ -75,7 +73,7 @@ def main():
     save_dir = '/data/ephemeral/home/level2-objectdetection-cv-12/ensemble'
 
     # 저장할 파일명 입력
-    submission.to_csv(os.path.join(save_dir, '6sum_submission.csv'), index=False)
+    submission.to_csv(os.path.join(save_dir, '4sum_submission.csv'), index=False)
 
 if __name__ == '__main__':
     main()
