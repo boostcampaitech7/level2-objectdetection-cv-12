@@ -82,7 +82,7 @@ optim_wrapper = dict(
 
 
 #### dataset ####
-data_root = '/data/ephemeral/home/dataset/'
+data_root = '/data/ephemeral/home/level2-objectdetection-cv-12/FOLD'
 
 metainfo = {
     'classes': ('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
@@ -99,7 +99,7 @@ train_dataloader = dict(
     dataset=dict(
         data_root=data_root,
         metainfo=metainfo,
-        ann_file='train_kfold_0.json',
+        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/train.json',
         data_prefix=dict(img=''),
         pipeline=train_pipeline))
 
@@ -109,7 +109,7 @@ val_dataloader = dict(
     dataset=dict(
         data_root=data_root,
         metainfo=metainfo,
-        ann_file='val_kfold_0.json',
+        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json',
         data_prefix=dict(img=''),
         pipeline=test_pipeline))
 
@@ -117,7 +117,7 @@ test_dataloader = dict(
     dataset=dict(
         data_root=data_root,
         metainfo=metainfo,
-        ann_file='test.json',
+        ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/test.json',
         data_prefix=dict(img=''),
         pipeline=test_pipeline))
 
@@ -126,25 +126,24 @@ test_dataloader = dict(
 #### evaluation ####
 val_evaluator = dict(
     type='CocoMetric',
-    ann_file=data_root + 'val_kfold_0.json',
+    ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/val.json',
     metric='bbox',
     format_only=False,
     classwise=True,
     )
 
-test_evaluator = dict(ann_file=data_root + 'test.json')
+test_evaluator = dict(ann_file='/data/ephemeral/home/level2-objectdetection-cv-12/FOLD/test.json')
 
 
 
-#### wandb ####
+### wandb ###
 vis_backends = [
     dict(type='LocalVisBackend'),
     dict(type='WandbVisBackend',
          init_kwargs={
-            'project': 'mmdetection',
-            'entity': 'ai_tech_level2_objectdetection',
-            'group': 'deformable_detr',
-            'name': 'epochs12_batch4_AdamW_kfold0_seed137'  # name 변경 해줄 것!
+            'project': 'Deformable_DETR',  # Updated project name
+            'entity': 'yujihwan-yonsei-university',
+            'name': 'deformable_DETR_15EPOCH'  # Updated experiment name
          })]
 
 
