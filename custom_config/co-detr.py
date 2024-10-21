@@ -13,9 +13,6 @@ num_classes = len(classes)
 
 model = dict(
     type='CoDETR',
-    backbone=dict(drop_path_rate=0.6),
-    use_lsj=False, 
-    data_preprocessor=dict(pad_mask=False, batch_augments=None),
     bbox_head=[
         dict(
             anchor_generator=dict(
@@ -182,8 +179,28 @@ model = dict(
     ],
 )
 
+
+# train_pipeline = [
+#     dict(type='LoadImageFromFile', backend_args=backend_args),
+#     dict(type='LoadAnnotations', with_bbox=True),
+#     dict(
+#         type='RandomResize',
+#         scale=image_size,
+#         ratio_range=(0.1, 2.0),
+#         keep_ratio=True),
+#     dict(
+#         type='RandomCrop',
+#         crop_type='absolute_range',
+#         crop_size=image_size,
+#         recompute_bbox=True,
+#         allow_negative_crop=True),
+#     dict(type='FilterAnnotations', min_gt_bbox_wh=(1e-2, 1e-2)),
+#     dict(type='RandomFlip', prob=0.5),
+#     dict(type='Pad', size=image_size, pad_val=dict(img=(114, 114, 114))),
+#     dict(type='PackDetInputs')
+# ]
 train_pipeline = [
-    dict(type='LoadImageFromFile', backend_args=_base_.backend_args),
+    dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
     dict(type='RandomFlip', prob=0.5),
     dict(
@@ -192,37 +209,76 @@ train_pipeline = [
             [
                 dict(
                     type='RandomChoiceResize',
-                    scales=[(480, 1333), (512, 1333), (544, 1333), (576, 1333),
-                            (608, 1333), (640, 1333), (672, 1333), (704, 1333),
-                            (736, 1333), (768, 1333), (800, 1333)],
+                    scales=[(240, 1024), (256, 1024), (272, 1024), (288, 1024),
+                            (304, 1024), (320, 1024), (336, 1024), (352, 1024),
+                            (368, 1024), (384, 1024), (400, 1024), (416, 1024),
+                            (432, 1024), (448, 1024), (464, 1024), (480, 1024),
+                            (496, 1024), (512, 1024), (528, 1024), (544, 1024),
+                            (560, 1024), (576, 1024), (592, 1024), (608, 1024),
+                            (624, 1024), (640, 1024), (656, 1024), (672, 1024),
+                            (688, 1024), (704, 1024), (720, 1024), (736, 1024),
+                            (752, 1024)],
                     keep_ratio=True)
             ],
             [
                 dict(
                     type='RandomChoiceResize',
-                    # The radio of all image in train dataset < 7
-                    # follow the original implement
-                    scales=[(400, 4200), (500, 4200), (600, 4200)],
+                    scales=[(200, 2100), (250, 2100), (300, 2100)],
                     keep_ratio=True),
                 dict(
                     type='RandomCrop',
                     crop_type='absolute_range',
-                    crop_size=(384, 600),
+                    crop_size=(192, 300),
                     allow_negative_crop=True),
                 dict(
                     type='RandomChoiceResize',
-                    scales=[(480, 1333), (512, 1333), (544, 1333), (576, 1333),
-                            (608, 1333), (640, 1333), (672, 1333), (704, 1333),
-                            (736, 1333), (768, 1333), (800, 1333)],
+                    scales=[(240, 1024), (256, 1024), (272, 1024), (288, 1024),
+                            (304, 1024), (320, 1024), (336, 1024), (352, 1024),
+                            (368, 1024), (384, 1024), (400, 1024), (416, 1024),
+                            (432, 1024), (448, 1024), (464, 1024), (480, 1024),
+                            (496, 1024), (512, 1024), (528, 1024), (544, 1024),
+                            (560, 1024), (576, 1024), (592, 1024), (608, 1024),
+                            (624, 1024), (640, 1024), (656, 1024), (672, 1024),
+                            (688, 1024), (704, 1024), (720, 1024), (736, 1024),
+                            (752, 1024)],
                     keep_ratio=True)
             ]
         ]),
     dict(type='PackDetInputs')
 ]
 
+train_dataloader = dict(
+    batch_size=1,
+    num_workers=1,
+    sampler=dict(
+        type='DefaultSampler',
+        shuffle=True),
+    dataset=dict(
+        type='CocoDataset',
+        data_root='/data/ephemeral/home/FOLD/',
+        ann_file='train.json',
+        metainfo=dict(classes=classes),
+        data_prefix=dict(img='./'),
+        pipeline=train_pipeline,
+        backend_args=None
+    ),
+    collate_fn=dict(type='pseudo_collate')
+)
+
+# test_pipeline = [
+#     dict(type='LoadImageFromFile', backend_args=backend_args),
+#     dict(type='Resize', scale=image_size, keep_ratio=True),
+#     dict(type='Pad', size=image_size, pad_val=dict(img=(114, 114, 114))),
+#     dict(type='LoadAnnotations', with_bbox=True),
+#     dict(
+#         type='PackDetInputs',
+#         meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
+#                    'scale_factor'))
+# ]
+
 test_pipeline = [
-    dict(type='LoadImageFromFile', backend_args=_base_.backend_args),
-    dict(type='Resize', scale=(1333, 800), keep_ratio=True),
+    dict(type='LoadImageFromFile'),
+    dict(type='Resize', scale=image_size, keep_ratio=True),
     dict(type='LoadAnnotations', with_bbox=True),
     dict(
         type='PackDetInputs',
@@ -230,69 +286,43 @@ test_pipeline = [
                    'scale_factor'))
 ]
 
-train_dataloader = dict(
-    batch_size=1, 
-    num_workers=1,
-    sampler=dict(type='DefaultSampler', shuffle=True),
-    dataset=dict(
-            type='CocoDataset',
-            data_root='/data/ephemeral/home/FOLD/',
-            ann_file='train.json',
-            data_prefix=dict(img='./'),
-            metainfo=dict(classes=classes),
-            filter_cfg=dict(filter_empty_gt=False),
-            pipeline=train_pipeline,
-            backend_args=backend_args)
-)
-
 val_dataloader = dict(
     batch_size=1,
-    num_workers=2,
-    persistent_workers=True,
-    drop_last=False,
-    sampler=dict(type='DefaultSampler', shuffle=False),
+    num_workers=1,
+    sampler=dict(
+        type='DefaultSampler',
+        shuffle=False),
     dataset=dict(
         type='CocoDataset',
+        test_mode=True,
         data_root='/data/ephemeral/home/FOLD/',
         ann_file='train.json',
-        data_prefix=dict(img='./'),
         metainfo=dict(classes=classes),
-        test_mode=True,
+        data_prefix=dict(img='./'),
         pipeline=test_pipeline,
-        backend_args=backend_args
-    )
+        backend_args=None,
+    ),
+    collate_fn=dict(type='pseudo_collate')
 )
 
 test_dataloader = dict(
     batch_size=1,
-    num_workers=2,
-    persistent_workers=True,
-    drop_last=False,
-    sampler=dict(type='DefaultSampler', shuffle=False),
+    num_workers=1,
+    sampler=dict(
+        type='DefaultSampler',
+        shuffle=False),
     dataset=dict(
         type='CocoDataset',
+        test_mode=True,
         data_root='/data/ephemeral/home/FOLD/',
         ann_file='test.json',
-        data_prefix=dict(img='./'),
         metainfo=dict(classes=classes),
-        test_mode=True,
+        data_prefix=dict(img='./'),
         pipeline=test_pipeline,
-        backend_args=backend_args
-    )
+        backend_args=None,
+    ),
+    collate_fn=dict(type='pseudo_collate')
 )
-
-param_scheduler = [
-    dict(
-        begin=0,
-        by_epoch=True,
-        end=36,
-        gamma=0.1,
-        milestones=[
-            30,
-        ],
-        type='MultiStepLR'),
-]
-train_cfg = dict(max_epochs=36)
 
 val_evaluator = dict(
     type='CocoMetric',
