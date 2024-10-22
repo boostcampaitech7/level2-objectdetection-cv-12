@@ -1,52 +1,29 @@
-from ensemble_boxes import *
 import pandas as pd
+from tqdm import tqdm
 
 def main():
-    lower = 0.2
-    upper = 1.0
-    num_detection = 100000
-    path = input('csv file path :')
-    num_detection = int(input('number of detections : '))
-    lower = float(input('lower : '))
-    upper = float(input('upper : '))
-    df1 = pd.read_csv(path)
+    # calibration 적용할 csv 파일 경로
+    df = pd.read_csv('/data/ephemeral/home/level2-objectdetection-cv-12/DINO.csv')
+
+    df_score_list = []
+    for pred_str in tqdm(df['PredictionString']):
+        df_score_list += list(map(float, str(pred_str).split(' ')[1::6]))
+    old_min = min(df_score_list)
+    old_max = max(df_score_list)
+
+    new_min = 0.05
+    new_max = 1.0
+
+    pred_str_list = []
+    for pred_str in tqdm(df['PredictionString']):
+        pred = str(pred_str).split(' ')
+        pred[1::6] = [str((new_max - new_min) * (float(sc) - old_min) / (old_max - old_min) + new_min) for sc in pred[1::6]]
+        pred_str_list.append(' '.join(pred))
+
+    df['PredictionString'] = pred_str_list
     
-    df_confidence_list = []
-    for string in df1.PredictionString:
-        df_confidence_list += list(map(float, str(string).split(' ')[1::6]))
-    MIN = min(df_confidence_list)
-    MAX = max(df_confidence_list)
-    thresh = sorted(df_confidence_list, reverse=True)[num_detection]
-
-    ############################################ confidence 걸러내기
-    ## confidence thresh 이상만 걸러내기
-
-    string_list = []
-
-    for string in df1.PredictionString:
-        arr = list(map(str,string.split(' ')))
-        row = []
-        for index in range(0, len(arr)-1, 6):
-            if float(arr[index+1])>thresh:
-                row += arr[index:index+6]
-            else:
-                continue
-                
-        string_list.append(' '.join(row) +' ')
-    df1.PredictionString = string_list
-
-    ########################################### scaling 
-
-    string_list = []
-    for string in df1.PredictionString:
-        arr = string.split(' ')
-        arr[1::6] = [str(lower + ((upper-lower)*(float(i) -MIN) / (MAX-MIN)))  for i in arr[1::6]]
-        string_list.append(' '.join(arr))
-
-    df1.PredictionString =string_list
-    df1.to_csv('/opt/ml/calibrated/new_calibrated.csv', index=None)
-    
-    print("Done! csv file created\n")
+    # 저장할 경로
+    df.to_csv('/data/ephemeral/home/level2-objectdetection-cv-12/cal_DINO_submission.csv', index=False)
 
 if __name__ == '__main__':
     main()
