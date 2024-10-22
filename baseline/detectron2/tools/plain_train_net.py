@@ -176,7 +176,8 @@ def setup(args):
     cfg = get_cfg()
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
-    cfg.freeze()
+    
+
     default_setup(
         cfg, args
     )  # if you don't like any of the default setup, write your own setup code

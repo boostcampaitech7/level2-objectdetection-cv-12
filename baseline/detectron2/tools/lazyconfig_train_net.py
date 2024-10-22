@@ -32,11 +32,15 @@ from detectron2.utils import comm
 import os
 from detectron2.utils.logger import setup_logger
 
+import pandas as pd
+import numpy as np
+
+
 
 # 로그 설정 ( output_log 폴더 안에서 output.log 라는 파일이 생성되고 거기서 실시간으로 진행상황이 보이게 된다.)
-log_output_dir = '../../output_logs'
+log_output_dir = '/data/ephemeral/home/bigstar/output_logs'
 os.makedirs(log_output_dir, exist_ok=True)
-log_file = os.path.join(log_output_dir, 'output_Cascade_mask_RCNN_mvitv2_h.log')
+log_file = os.path.join(log_output_dir, 'output_Cascade_mask_RCNN_mvitv2_h_inference.log')
 logger = setup_logger(output=log_file)
 logger.setLevel(logging.INFO)
 console_handler = logging.StreamHandler()
@@ -50,6 +54,7 @@ logger.addHandler(console_handler)
 
 def do_test(cfg, model):
     if "evaluator" in cfg.dataloader:
+        # ret: `evaluator.evaluate()`의 value
         ret = inference_on_dataset(
             model,
             instantiate(cfg.dataloader.test),
