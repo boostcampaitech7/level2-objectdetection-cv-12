@@ -3,6 +3,3 @@
 *.ckpt
 *.log
 *.txt
-*.pt
-*.csv
-*.cache

@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+# mmdet/models/backbones/__init__.py
+
 from .csp_darknet import CSPDarknet
 from .cspnext import CSPNeXt
 from .darknet import Darknet
@@ -17,11 +19,14 @@ from .resnext import ResNeXt
 from .ssd_vgg import SSDVGG
 from .swin import SwinTransformer
 from .trident_resnet import TridentResNet
+from .eva02_backbone import EVA02Backbone  # 추가된 라인
 
 __all__ = [
     'RegNet', 'ResNet', 'ResNetV1d', 'ResNeXt', 'SSDVGG', 'HRNet',
     'MobileNetV2', 'Res2Net', 'HourglassNet', 'DetectoRS_ResNet',
     'DetectoRS_ResNeXt', 'Darknet', 'ResNeSt', 'TridentResNet', 'CSPDarknet',
     'SwinTransformer', 'PyramidVisionTransformer',
-    'PyramidVisionTransformerV2', 'EfficientNet', 'CSPNeXt'
+    'PyramidVisionTransformerV2', 'EfficientNet', 'CSPNeXt',
+    'EVA02Backbone'  # 추가된 라인
 ]
+
