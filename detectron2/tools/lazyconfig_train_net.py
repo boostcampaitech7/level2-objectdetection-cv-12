@@ -36,22 +36,6 @@ import pandas as pd
 import numpy as np
 
 
-
-# 로그 설정 ( output_log 폴더 안에서 output.log 라는 파일이 생성되고 거기서 실시간으로 진행상황이 보이게 된다.)
-log_output_dir = '/data/ephemeral/home/bigstar/baseline/detectron2/output_logs'
-os.makedirs(log_output_dir, exist_ok=True)
-log_file = os.path.join(log_output_dir, 'output_Cascade_mask_RCNN_mvitv2_h_20000.log')
-logger = setup_logger(output=log_file)
-logger.setLevel(logging.INFO)
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
-logger.addHandler(console_handler)
-
-# logger = logging.getLogger("detectron2")
-
-
-
-
 def do_test(cfg, model):
     if "evaluator" in cfg.dataloader:
         # ret: `evaluator.evaluate()`의 value
@@ -84,8 +68,8 @@ def do_train(args, cfg):
                 ddp (dict)
     """
     model = instantiate(cfg.model)    
-    # logger = logging.getLogger("detectron2")
-    # logger.info("Model:\n{}".format(model))
+    logger = logging.getLogger("detectron2")
+    logger.info("Model:\n{}".format(model))
     model.to(cfg.train.device)
 
     cfg.optimizer.params.model = model
