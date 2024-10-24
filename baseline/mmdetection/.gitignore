@@ -123,3 +123,4 @@ recycle_config/
 *.pth
 *.py~
 *.sh~
+.chche
