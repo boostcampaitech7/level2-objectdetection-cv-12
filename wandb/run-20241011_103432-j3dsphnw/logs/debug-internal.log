@@ -1,0 +1,14 @@
+{"time":"2024-10-11T10:34:32.335946258+09:00","level":"INFO","msg":"using version","core version":"0.18.3"}
+{"time":"2024-10-11T10:34:32.335961528+09:00","level":"INFO","msg":"created symlink","path":"/data/ephemeral/home/Lv2.Object_Detection/baseline/detectron2/wandb/run-20241011_103432-j3dsphnw/logs/debug-core.log"}
+{"time":"2024-10-11T10:34:32.33802541+09:00","level":"ERROR","msg":"dialing: google: could not find default credentials. See https://cloud.google.com/docs/authentication/external/set-up-adc for more information"}
+{"time":"2024-10-11T10:34:32.342562455+09:00","level":"INFO","msg":"created new stream","id":"j3dsphnw"}
+{"time":"2024-10-11T10:34:32.342595031+09:00","level":"INFO","msg":"stream: started","id":"j3dsphnw"}
+{"time":"2024-10-11T10:34:32.34263347+09:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"j3dsphnw"}}
+{"time":"2024-10-11T10:34:32.342800488+09:00","level":"INFO","msg":"handler: started","stream_id":{"value":"j3dsphnw"}}
+{"time":"2024-10-11T10:34:32.342638372+09:00","level":"INFO","msg":"sender: started","stream_id":{"value":"j3dsphnw"}}
+{"time":"2024-10-11T10:34:32.880581246+09:00","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-10-11T10:34:32.88186582+09:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-11T10:34:33.112107827+09:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2024-10-11T10:34:33.119794561+09:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2024-10-11T10:35:24.028093591+09:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2024-10-11T10:42:04.390880088+09:00","level":"INFO","msg":"api: retrying HTTP error","status":502,"url":"https://api.wandb.ai/files/yujihwan-yonsei-university/my-detectron2-project/j3dsphnw/file_stream"}
