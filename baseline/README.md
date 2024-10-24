@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/eaf5f234-fa80-4693-8cdc-f09f82655bfb)
+![8C321082-E9C8-48EC-AC29-4E17333E30B3](https://github.com/user-attachments/assets/aef28484-5d11-4e71-bf6c-ce08c988f588)
 # MMDetection
 Official Repo : https://github.com/open-mmlab/mmdetection
 ## How to install environment
