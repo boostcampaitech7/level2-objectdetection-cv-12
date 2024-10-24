@@ -25,8 +25,6 @@ def main(opt):
         image_id = '/'.join(paths[-2:])
         prediction_str = ' '.join(prediction_arr)
 
-        # 최신 버전 pandas에서는 append가 삭제됨
-        # df = df.append({'PredictionString':[prediction_str], 'image_id':[image_id]}, ignore_index=True)
         df = pd.concat([df, pd.DataFrame({'PredictionString':[prediction_str], 'image_id':[image_id]})], ignore_index=True)
         prediction_arr = []
         
