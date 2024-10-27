@@ -4,7 +4,16 @@
   <img src="https://img.shields.io/badge/Support-Ukraine-FFD500?style=flat&labelColor=005BBB" alt="Support Ukraine - Help Provide Humanitarian Aid to Ukraine." />
 </a>
 
+<br>
 
+# Results on Trash-Dataset in Detectron2
+
+|Model|AP|AP50|AP75|APs|APm|APl|mAP(Public)|mAP(Private)
+|---|---|---|---|---|---|---|---|---|
+Cascade_mask_rcnn_mvitv2|*|*|*|*|*|*|0.6513|0.6372
+EVA|59.060|70.148|61.067|4.917|14.866|67.322|0.6827|0.6700
+
+<br>
 
 # How to Run
 
