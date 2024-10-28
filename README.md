@@ -35,7 +35,7 @@ Object Detection을 위한 MMDetection과 Detectron2를 활용하여 프로젝�
         - Cascade R-CNN - MViTv2 Backbone
         - EVA-02
 - One stage Model
-    - YOLO V_11
+    - YOLO V_5,8,11
 
 <br>
 
