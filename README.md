@@ -56,6 +56,7 @@ Object Detection을 위한 MMDetection과 Detectron2를 활용하여 프로젝�
 | EVA                | MultiStepParamScheduler  | 40    | ViT           | 0.6827           | 0.6700            |
 
 <br/>
+
 ## LB Private Score
 24팀 중 7위 기록
 
