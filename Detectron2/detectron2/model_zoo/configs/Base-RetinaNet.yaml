@@ -1,0 +1,26 @@
+MODEL:
+  META_ARCHITECTURE: "RetinaNet"  # 메타 아키텍처로 RetinaNet 사용
+  BACKBONE:
+    NAME: "build_retinanet_resnet_fpn_backbone"  # ResNet + FPN 기반 RetinaNet 백본 사용
+  RESNETS:
+    OUT_FEATURES: ["res3", "res4", "res5"]  # ResNet에서 출력할 피처맵 레이어 설정 (res3, res4, res5)
+  ANCHOR_GENERATOR:
+    SIZES: !!python/object/apply:eval ["[[x, x * 2**(1.0/3), x * 2**(2.0/3) ] for x in [32, 64, 128, 256, 512 ]]"]  
+    # 각 피처맵 레벨에 대한 Anchor Box 크기를 설정. 기하급수적으로 크기를 증가시키는 Anchor 설정
+  FPN:
+    IN_FEATURES: ["res3", "res4", "res5"]  # FPN에 입력으로 들어갈 피처맵 레이어 설정
+  RETINANET:
+    IOU_THRESHOLDS: [0.4, 0.5]  # IoU 임계값 범위 설정. 이 범위 내에서 양성, 음성 샘플을 구분
+    IOU_LABELS: [0, -1, 1]  # IoU 라벨 설정. 0: 음성, -1: 무시, 1: 양성
+    SMOOTH_L1_LOSS_BETA: 0.0  # Smooth L1 Loss의 beta 값 설정 (0이면 L1 Loss와 동일)
+DATASETS:
+  TRAIN: ("coco_2017_train",)  # 학습 데이터셋으로 COCO 2017 트레인 데이터셋 사용
+  TEST: ("coco_2017_val",)  # 테스트 데이터셋으로 COCO 2017 검증 데이터셋 사용
+SOLVER:
+  IMS_PER_BATCH: 16  # 배치 크기 설정 (한 번의 학습에서 처리할 이미지 수)
+  BASE_LR: 0.01  # 기본 학습률 설정 (RetinaNet은 다른 모델보다 높은 학습률을 사용)
+  STEPS: (60000, 80000)  # 학습률을 감소시킬 단계 설정 (60,000번째, 80,000번째에서 감소)
+  MAX_ITER: 90000  # 최대 학습 반복 횟수 설정 (90000번 반복)
+INPUT:
+  MIN_SIZE_TRAIN: (640, 672, 704, 736, 768, 800)  # 학습 시 입력 이미지의 최소 크기 범위를 설정
+VERSION: 2  # 구성 파일 버전 설정 (Detectron2 버전과 관련)

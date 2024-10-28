@@ -1,0 +1,10 @@
+*.jpg
+*.json
+*.ckpt
+*.log
+*.txt
+*.csv
+*.chche
+*.png
+*.pt
+*.wandb
