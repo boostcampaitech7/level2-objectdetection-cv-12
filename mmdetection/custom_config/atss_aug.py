@@ -46,7 +46,6 @@ model = dict(
         drop_path_rate=0.2,
         patch_norm=True,
         out_indices=(1, 2, 3),
-        # 필요한 경우에만 인덱스를 추가하세요
         with_cp=False,
         convert_weights=True,
         init_cfg=dict(type='Pretrained', checkpoint=pretrained)),
@@ -63,14 +62,13 @@ model = dict(
             in_channels=256,
             out_channels=256,
             num_blocks=6,
-            # 공식 구현을 따르기 위해 zero_init_offset 비활성화
             zero_init_offset=False)
     ],
     bbox_head=dict(
         type='ATSSHead',
         num_classes=10,
         in_channels=256,
-        pred_kernel_size=1,  # 공식 구현을 따름
+        pred_kernel_size=1,  
         stacked_convs=0,
         feat_channels=256,
         anchor_generator=dict(
@@ -79,7 +77,7 @@ model = dict(
             octave_base_scale=8,
             scales_per_octave=1,
             strides=[8, 16, 32, 64, 128],
-            center_offset=0.5),  # 공식 구현을 따름
+            center_offset=0.5),  
         bbox_coder=dict(
             type='DeltaXYWHBBoxCoder',
             target_means=[0., 0., 0., 0.],
