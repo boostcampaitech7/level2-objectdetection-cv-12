@@ -24,3 +24,7 @@ EVA|59.060|70.148|61.067|4.917|14.866|67.322|0.6827|0.6700
 > EVA-02/det 실행 : python /path/to/your/lazyconfig_train_net.py --config-file projects/ViTDet/configs/eva2_mim_to_coco/eva2_coco_cascade_mask_rcnn_vitdet_b_4attn_1024_lrd0p7.py
 
 
+<br>
+### Experiments
+![image](https://github.com/user-attachments/assets/4a70f719-8573-47a9-ac2c-6b6b6c8a9819)
+![image](https://github.com/user-attachments/assets/29b5b16c-4351-4bae-bacf-86de27f5d19e)
