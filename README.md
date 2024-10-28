@@ -67,6 +67,8 @@ Object Detection을 위한 MMDetection과 Detectron2를 활용하여 프로젝�
 ## Reference 
 [1] Detectron2 https://github.com/facebookresearch/detectron2
 
-[2] MMDetection https://github.com/open-mmlab/mmdetection
+[2] EVA https://github.com/baaivision/EVA.git
 
-[3] MMDetection 3.3.0 https://mmdetection.readthedocs.io/en/latest/get_started.html
+[3] MMDetection https://github.com/open-mmlab/mmdetection
+
+[4] MMDetection 3.3.0 https://mmdetection.readthedocs.io/en/latest/get_started.html
