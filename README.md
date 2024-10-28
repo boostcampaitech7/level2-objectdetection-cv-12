@@ -21,7 +21,8 @@
 <br/>
 
 ## 실험환경
-![alt text](image-2.png)
+![img1](https://github.com/user-attachments/assets/18918407-d620-4a7a-a7a2-9f9f935a4d1b)
+
 
 <br/>
 
@@ -62,9 +63,12 @@ Object Detection을 위한 MMDetection과 Detectron2를 활용하여 프로젝�
 ## LB Private Score
 24팀 중 7위 기록
 
-![alt text](image-3.png)
+<img width="738" alt="8CAB6362-D8FB-4C52-B41E-A62936C06231" src="https://github.com/user-attachments/assets/a0fbb535-1ae5-4f0a-81d3-13fc6b814a07">
+
 <br/>
+
 ## Reference 
+
 [1] Detectron2 https://github.com/facebookresearch/detectron2
 
 [2] EVA https://github.com/baaivision/EVA.git
